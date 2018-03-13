@@ -31,6 +31,7 @@ export default class SpfxScreenreaderApplicationCustomizer
 
   private _topPlaceholder: PlaceholderContent | undefined;
   private atextToSpeechService: ScreenreaderService;
+  private allText: string[] = [];
 
   @override
   public onInit(): Promise<void> {
@@ -48,6 +49,29 @@ export default class SpfxScreenreaderApplicationCustomizer
     // Call render method for generating the HTML elements.
     this._renderPlaceHolders();
     return Promise.resolve<void>();
+  }
+
+  private scrapePage(): string[]
+  {
+    let allTextToRead: string[] = [];
+
+    let heroElements: HTMLCollectionOf<Element> =  document.getElementsByClassName('ms-FocusZone');
+
+    for(var i = 0; i < heroElements.length; i++)
+    {
+      var aText: string = heroElements[i].getAttribute('aria-label');
+
+      if (aText)
+      {
+        console.log(aText);
+        allTextToRead.push(aText);
+      }
+      else{
+        console.log('No aria-label found for this element.');
+      }
+    }
+
+    return allTextToRead;
   }
 
   private async _renderPlaceHolders(): Promise<void> {
@@ -75,26 +99,70 @@ export default class SpfxScreenreaderApplicationCustomizer
           topString = '(Top property was not defined.)';
         }
 
+        /*
         let aSpeechResponse: Blob = await this.atextToSpeechService.TextToSpeech("First line from application customizer.");
 
         var audio = new Audio();
         audio.src = URL.createObjectURL(aSpeechResponse);
         audio.load();
         audio.play();
+        */
 
         if (this._topPlaceholder.domElement) {
           this._topPlaceholder.domElement.innerHTML = `
         <div class="${styles.app}">
           <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">
-            <i class="ms-Icon ms-Icon--Info" aria-hidden="true"></i> ${ audio.outerHTML }
+            <i class="ms-Icon ms-Icon--Info" aria-hidden="true"></i> Reading screen!
           </div>
         </div>
         `;
-        }        
+        }     
+        
+        let self = this;
+
+        setTimeout(async function () {
+          console.log("Timeout expired. Running screenreading code.");
+
+          self.readPage(self);
+        }, 3000);    
       }
     }
   }
 
+  private async readPage(aSelf)
+  {
+    if (aSelf.allText.length == 0)
+    {
+      aSelf.allText = aSelf.scrapePage();
+    }        
+
+    if (aSelf.allText.length > 0)
+    {
+      var aIndex = 1;
+      let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[0]);
+
+      var aObjectUrl: string = URL.createObjectURL(aSpeechResponse);
+      var audio = new Audio();
+      audio.src = aObjectUrl;
+      audio.load();
+      audio.play();
+
+      audio.onended = async function()
+      {
+        if (aIndex < aSelf.allText.length)
+        {
+          let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[aIndex]);
+
+          var aObjectUrl: string = URL.createObjectURL(aSpeechResponse);
+          audio.src = aObjectUrl;
+          // audio.load();
+          audio.play();
+          aIndex++;
+        }
+      }
+    }
+  }
+  
   private _onDispose(): void {
     console.log('[HelloWorldApplicationCustomizer._onDispose] Disposed custom top and bottom placeholders.');
   }
