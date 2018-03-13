@@ -1,0 +1,13 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfxscreenreader-client-side-solution",
+    "id": "4a0c98ee-f20b-4a30-aef4-8525dd997254",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/spfxscreenreader.sppkg"
+  }
+}
