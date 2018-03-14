@@ -111,14 +111,48 @@ export default class SpfxScreenreaderApplicationCustomizer
         if (this._topPlaceholder.domElement) {
           this._topPlaceholder.domElement.innerHTML = `
         <div class="${styles.app}">
-          <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">
-            <i class="ms-Icon ms-Icon--Info" aria-hidden="true"></i> Reading screen!
+          <div id="screenreader-settings-wrapper" class="screenreader-settings-wrapper" style="display:none;">
+            <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">          
+              <input type="text" value="add api url"></input>
+              <input type="checkbox" id="autoPlay" name="autoPlay" value="autoPlay"></input>
+              <label for="autoPlay">Autoplay?</label>
+              <i class="screenreader-settings ms-Icon ms-Icon--Save x-hidden-focus" title="Save" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$2.0"></i>
+            </div>
           </div>
+          <div id="screenreader-audioplayer-wrapper" class="screenreader-audioplayer-wrapper">
+            <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">
+
+              <i class="ms-Icon ms-Icon--Rewind x-hidden-focus" title="Rewind" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$0.0"></i>
+
+              <i class="ms-Icon ms-Icon--CircleStopSolid x-hidden-focus" title="CircleStopSolid" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i>
+
+              <i class="ms-Icon ms-Icon--Play x-hidden-focus" title="Play" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i> 
+                        
+              Reading screen!
+
+              <i class="screenreader-settings ms-Icon ms-Icon--EditSolidMirrored12 x-hidden-focus" title="EditSolidMirrored12" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$11.0"></i>
+            
+            </div>
+          </div>          
         </div>
         `;
         }     
+
+      
+      
         
         let self = this;
+
+        var settingsElements = document.getElementsByClassName('screenreader-settings');
+      
+        for(var i = 0;i < settingsElements.length; i++)
+        {
+          settingsElements[i].addEventListener('click', function()
+          {
+            self.toggle(document.getElementById('screenreader-settings-wrapper'));
+            self.toggle(document.getElementById('screenreader-audioplayer-wrapper'));
+          })
+        }
 
         setTimeout(async function () {
           console.log("Timeout expired. Running screenreading code.");
@@ -128,6 +162,30 @@ export default class SpfxScreenreaderApplicationCustomizer
       }
     }
   }
+
+  // Show an element
+private show = function (elem) {
+	elem.style.display = 'block';
+};
+
+// Hide an element
+private hide = function (elem) {
+	elem.style.display = 'none';
+};
+
+// Toggle element visibility
+private toggle = function (elem) {
+
+	// If the element is visible, hide it
+	if (window.getComputedStyle(elem).display === 'block') {
+		this.hide(elem);
+		return;
+	}
+
+	// Otherwise, show it
+	this.show(elem);
+
+};
 
   private async readPage(aSelf)
   {

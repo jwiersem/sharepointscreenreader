@@ -1,21 +1,16 @@
 .app {
     .top {
-        height:60px;
+        height:30px;
         text-align:center;
         line-height:2.5;
         font-weight:bold;
         display: flex;
         align-items: center;
         justify-content: center;
-    }
+    }   
 
-    .bottom {
-        height:40px;
-        text-align:center;
-        line-height:2.5;
-        font-weight:bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .screenreader-settings 
+    {
+        display:none;
     }
 }
