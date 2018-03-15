@@ -7,6 +7,8 @@ import {
 } from '@microsoft/sp-application-base';
 import { Dialog } from '@microsoft/sp-dialog';
 
+import { SPHttpClient, SPHttpClientResponse, SPHttpClientConfiguration } from '@microsoft/sp-http';  
+
 import * as strings from 'SpfxScreenreaderApplicationCustomizerStrings';
 
 import styles from './AppCustomizer.module.scss';
@@ -82,13 +84,15 @@ export default class SpfxScreenreaderApplicationCustomizer
 
   private async getProperties(aProperties: ISpfxScreenreaderApplicationCustomizerProperties): Promise<any>
   {
-    var propertiesPromise = new Promise(function(resolve, reject){
-        sp.site.rootWeb.lists.getByTitle('ScreenreaderSettings').items.select("screenreader_apiUrl","screenreader_autoPlay","screenreader_selectors").top(1).get().then((items: any[]) => {
-          console.log(items);
+    return this.context.spHttpClient.get(`${this.context.pageContext.web.absoluteUrl}/_api/site/rootweb/lists/getByTitle('ScreenreaderSettings')/items?$select=screenreader_apiUrl,screenreader_autoPlay,screenreader_selectors&$top=1`,  
+      SPHttpClient.configurations.v1)  
+      .then((response: SPHttpClientResponse) => {  
+        response.json().then((responseJSON: any) => {  
+          console.log(responseJSON);  
 
-          if (items.length == 1)
+          if (responseJSON.value.length == 1)
           {
-            var aItem = items[0];
+            var aItem = responseJSON.value[0];
             aProperties.apiUrl = aItem["screenreader_apiUrl"];
             aProperties.autoPlay = aItem["screenreader_autoPlay"];
             aProperties.selectors = aItem["screenreader_selectors"];
@@ -98,20 +102,13 @@ export default class SpfxScreenreaderApplicationCustomizer
             console.log(aProperties.selectors);
             console.log('Properties set.');
 
-            resolve(true);
           }
           else{
-            console.log("Could not fetch settings correctly");
-            reject("Could not fetch settings correctly");
+            console.log("Did not find single item");
+            throw new Error("Did not find single item");
           }
-        })
-        .catch((err) => {
-          console.log("Could not fetch settings correctly");
-          reject("Could not fetch settings correctly");
-        });
-    });
-
-    return propertiesPromise;
+        });  
+      }); 
   }
 
   private async _renderPlaceHolders(): Promise<void> {
