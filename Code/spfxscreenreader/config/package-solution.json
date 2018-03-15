@@ -5,7 +5,21 @@
     "id": "4a0c98ee-f20b-4a30-aef4-8525dd997254",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
-    "skipFeatureDeployment": true
+    "skipFeatureDeployment": true,
+    "features": [{
+     "title": "asset-deployment-screenreader",
+     "description": "asset-deployment-screenreader",
+     "id": "EF5CA35B-05DD-4CCB-9754-C89621AC8E8B",
+     "version": "1.0.0.0",
+     "assets": {
+       "elementManifests": [
+         "elements.xml"
+       ],
+       "elementFiles":[
+         "schema.xml"
+       ]
+     }
+   }]
   },
   "paths": {
     "zippedPackage": "solution/spfxscreenreader.sppkg"

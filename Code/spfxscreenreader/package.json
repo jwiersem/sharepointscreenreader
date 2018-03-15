@@ -15,8 +15,14 @@
     "@microsoft/sp-application-base": "~1.4.1",
     "@microsoft/sp-core-library": "~1.4.1",
     "@microsoft/sp-dialog": "~1.4.1",
+    "@pnp/common": "^1.0.3",
+    "@pnp/graph": "^1.0.3",
+    "@pnp/logging": "^1.0.3",
+    "@pnp/odata": "^1.0.3",
+    "@pnp/sp": "^1.0.3",
     "@types/webpack-env": ">=1.12.1 <1.14.0",
-    "office-ui-fabric-react": "https://registry.npmjs.org/office-ui-fabric-react/-/office-ui-fabric-react-5.21.0.tgz"
+    "office-ui-fabric-react": "https://registry.npmjs.org/office-ui-fabric-react/-/office-ui-fabric-react-5.21.0.tgz",
+    "sp-pnp-js": "^3.0.6"
   },
   "devDependencies": {
     "@microsoft/generator-sharepoint": "^1.4.1",

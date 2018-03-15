@@ -12,6 +12,8 @@ import * as strings from 'SpfxScreenreaderApplicationCustomizerStrings';
 import styles from './AppCustomizer.module.scss';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+import { sp } from "@pnp/sp";
+
 import { ScreenreaderService,IScreenreaderServiceConfiguration } from './Services/ScreenreaderService';
 
 const LOG_SOURCE: string = 'SpfxScreenreaderApplicationCustomizer';
@@ -23,6 +25,9 @@ const LOG_SOURCE: string = 'SpfxScreenreaderApplicationCustomizer';
  */
 export interface ISpfxScreenreaderApplicationCustomizerProperties {
   Top: string;
+  apiUrl: string;
+  autoPlay: boolean;
+  selectors: string;
 }
 
 /** A Custom Action which can be run during execution of a Client Side Application */
@@ -33,22 +38,39 @@ export default class SpfxScreenreaderApplicationCustomizer
   private atextToSpeechService: ScreenreaderService;
   private allText: string[] = [];
 
+  private propertyNameApiUrl: string = "screenreader-apiUrlProperty";
+  private propertynameAutoPlay: string = "screenreader-autoPlayProperty";
+
   @override
-  public onInit(): Promise<void> {
+  public async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, `Initialized ${strings.Title}`);
+
+    await this.getProperties(this.properties).catch((err) => {
+      console.log("Error getting properties from ScreenreaderSettings list. Does it exist?");
+    });
+
+    if (!this.properties.apiUrl || 0 === this.properties.apiUrl.length)
+    {
+      this.properties.apiUrl = "https://prod-32.westeurope.logic.azure.com:443/workflows/737b64d81a9e4dc8b0dd1b938789df2b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PQbLDWnyX2m7GK6wRF5p03dvPacpYYPh87h5jp352dM";
+    }
 
     let config: IScreenreaderServiceConfiguration = {
       httpClient: this.context.httpClient,
-      apiUrl: "https://prod-32.westeurope.logic.azure.com:443/workflows/737b64d81a9e4dc8b0dd1b938789df2b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PQbLDWnyX2m7GK6wRF5p03dvPacpYYPh87h5jp352dM"
+      apiUrl: this.properties.apiUrl
     };
 
     this.atextToSpeechService = new ScreenreaderService(config);
 
     // Added to handle possible changes on the existence of placeholders.
     this.context.placeholderProvider.changedEvent.add(this, this._renderPlaceHolders);
+
     // Call render method for generating the HTML elements.
     this._renderPlaceHolders();
-    return Promise.resolve<void>();
+    return super.onInit().then(_ => {
+      sp.setup({
+        spfxContext: this.context
+      });
+    });
   }
 
   private scrapePage(): string[]
@@ -72,6 +94,40 @@ export default class SpfxScreenreaderApplicationCustomizer
     }
 
     return allTextToRead;
+  }
+
+  private async getProperties(aProperties: ISpfxScreenreaderApplicationCustomizerProperties): Promise<any>
+  {
+    var propertiesPromise = new Promise(function(resolve, reject){
+        sp.site.rootWeb.lists.getByTitle('ScreenreaderSettings').items.select("screenreader_apiUrl","screenreader_autoPlay","screenreader_selectors").top(1).get().then((items: any[]) => {
+          console.log(items);
+
+          if (items.length == 1)
+          {
+            var aItem = items[0];
+            aProperties.apiUrl = aItem["screenreader_apiUrl"];
+            aProperties.autoPlay = aItem["screenreader_autoPlay"];
+            aProperties.selectors = aItem["screenreader_selectors"];
+
+            console.log(aProperties.apiUrl);
+            console.log(aProperties.autoPlay);
+            console.log(aProperties.selectors);
+            console.log('Properties set.');
+
+            resolve(true);
+          }
+          else{
+            console.log("Could not fetch settings correctly");
+            reject("Could not fetch settings correctly");
+          }
+        })
+        .catch((err) => {
+          console.log("Could not fetch settings correctly");
+          reject("Could not fetch settings correctly");
+        });
+    });
+
+    return propertiesPromise;
   }
 
   private async _renderPlaceHolders(): Promise<void> {
@@ -99,24 +155,15 @@ export default class SpfxScreenreaderApplicationCustomizer
           topString = '(Top property was not defined.)';
         }
 
-        /*
-        let aSpeechResponse: Blob = await this.atextToSpeechService.TextToSpeech("First line from application customizer.");
-
-        var audio = new Audio();
-        audio.src = URL.createObjectURL(aSpeechResponse);
-        audio.load();
-        audio.play();
-        */
-
         if (this._topPlaceholder.domElement) {
           this._topPlaceholder.domElement.innerHTML = `
         <div class="${styles.app}">
           <div id="screenreader-settings-wrapper" class="screenreader-settings-wrapper" style="display:none;">
             <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">          
-              <input type="text" value="add api url"></input>
-              <input type="checkbox" id="autoPlay" name="autoPlay" value="autoPlay"></input>
+              <input id="input-apiUrl" type="text" value="${this.properties.apiUrl}"></input>
+              <input id="input-autoPlay" type="checkbox" id="autoPlay" name="autoPlay" value="${this.properties.autoPlay}"></input>
               <label for="autoPlay">Autoplay?</label>
-              <i class="screenreader-settings ms-Icon ms-Icon--Save x-hidden-focus" title="Save" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$2.0"></i>
+              <i id="screenreader-save-operation" class="screenreader-settings ms-Icon ms-Icon--Save x-hidden-focus" title="Save" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$2.0"></i>
             </div>
           </div>
           <div id="screenreader-audioplayer-wrapper" class="screenreader-audioplayer-wrapper">
@@ -137,10 +184,7 @@ export default class SpfxScreenreaderApplicationCustomizer
         </div>
         `;
         }     
-
-      
-      
-        
+           
         let self = this;
 
         var settingsElements = document.getElementsByClassName('screenreader-settings');
@@ -151,11 +195,24 @@ export default class SpfxScreenreaderApplicationCustomizer
           {
             self.toggle(document.getElementById('screenreader-settings-wrapper'));
             self.toggle(document.getElementById('screenreader-audioplayer-wrapper'));
-          })
+          });
         }
 
+        var saveElement = document.getElementById('screenreader-save-operation');
+
+        saveElement.addEventListener('click', function(){
+          var apiUrlElement = document.getElementById('input-apiUrl');
+          var autoPlayElement = document.getElementById('input-autoPlay');
+
+          self.properties.apiUrl = (<HTMLInputElement>apiUrlElement).value;
+          self.properties.autoPlay = (<HTMLInputElement>autoPlayElement).checked;
+
+          console.log(self.properties.apiUrl);
+          console.log(self.properties.autoPlay);
+        });
+
         setTimeout(async function () {
-          console.log("Timeout expired. Running screenreading code.");
+          console.log("Timeout expired. Running screenreading code.");          
 
           self.readPage(self);
         }, 3000);    
@@ -217,7 +274,7 @@ private toggle = function (elem) {
           audio.play();
           aIndex++;
         }
-      }
+      };
     }
   }
   
