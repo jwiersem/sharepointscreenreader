@@ -62,11 +62,18 @@ export default class SpfxScreenreaderApplicationCustomizer
   {
     let allTextToRead: string[] = [];
 
-    let heroElements: HTMLCollectionOf<Element> =  document.getElementsByClassName('ms-FocusZone');
+    let heroElements: NodeListOf<Element> =  document.querySelectorAll(this.properties.selectors);
+
+    console.log('Number of elements that might contain suitable text to read: ' + heroElements.length);
 
     for(var i = 0; i < heroElements.length; i++)
     {
       var aText: string = heroElements[i].getAttribute('aria-label');
+
+      if (!aText)
+      {
+        aText = heroElements[i].textContent;
+      }
 
       if (aText)
       {
@@ -74,7 +81,7 @@ export default class SpfxScreenreaderApplicationCustomizer
         allTextToRead.push(aText);
       }
       else{
-        console.log('No aria-label found for this element.');
+        console.log('No text found for this element in aria-label or textContent properties.');        
       }
     }
 
@@ -152,14 +159,20 @@ export default class SpfxScreenreaderApplicationCustomizer
         <div class="${styles.app}">
           <div id="screenreader-audioplayer-wrapper" class="screenreader-audioplayer-wrapper">
             <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">
+              <h4>
+                Screenreader controls
+              </h4>
+              <div class="icon-container">
+                <i id="screenreader-rewind" class="ms-Icon ms-Icon--Rewind x-hidden-focus ms-fontColor-themeDarker--hover" title="Rewind" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$0.0"></i>
+              </div>
+              
+              <div class="icon-container">
+                <i id="screenreader-stop" class="ms-Icon ms-Icon--CircleStopSolid x-hidden-focus ms-fontColor-themeDarker--hover" title="CircleStopSolid" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i>
+              </div>
 
-              <i id="screenreader-rewind" class="ms-Icon ms-Icon--Rewind x-hidden-focus" title="Rewind" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$0.0"></i>
-
-              <i id="screenreader-stop" class="ms-Icon ms-Icon--CircleStopSolid x-hidden-focus" title="CircleStopSolid" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i>
-
-              <i id="screenreader-play" class="ms-Icon ms-Icon--Play x-hidden-focus" title="Play" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i> 
-                        
-              Reading screen!
+              <div class="icon-container">
+                <i id="screenreader-play" class="ms-Icon ms-Icon--Play x-hidden-focus ms-fontColor-themeDarker--hover" title="Play" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i> 
+              </div>   
             </div>
           </div>          
         </div>
