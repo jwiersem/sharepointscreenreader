@@ -1,39 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Elements xmlns="http://schemas.microsoft.com/sharepoint/">
-
    <Field ID="{43C42DF3-E91A-436C-A6C6-0D5E73340A67}"
-           Name="screenreader_apiUrl"
-           StaticName="screenreader_apiUrl"
-           DisplayName="API URL"
-           Type="Text"
-           Required="TRUE"
-           Group="Screenreader columns"
-           SourceId="http://schemas.microsoft.com/sharepoint/v3" />
-
+            Name="screenreader_apiUrl"
+            StaticName="screenreader_apiUrl"
+            DisplayName="API URL"
+            Type="Text"
+            Required="TRUE"
+            Group="Screenreader columns"
+            />
    <Field ID="{1AD8AF41-680D-44EB-A307-FD876B3CDACC}"
-           Name="screenreader_autoPlay"
+            Name="screenreader_autoPlay"
             StaticName="screenreader_autoPlay"
-           DisplayName="Autoplay on?"
-           Type="Boolean"
-           Required="TRUE"
-           Group="Screenreader columns"
-           SourceId="http://schemas.microsoft.com/sharepoint/v3">
-           <DEFAULT>1</DEFAULT>
+            DisplayName="Autoplay on?"
+            Type="Boolean"
+            Required="TRUE"
+            Group="Screenreader columns">
     </Field>
-
    <Field ID="{85211834-6556-4720-B036-18FFF0E2ACFD}"
-           Name="screenreader_selectors"
+            Name="screenreader_selectors"
             StaticName="screenreader_selectors"
-           DisplayName="Selectors"
-           Type="Text"
-           Required="TRUE"
-           Group="Screenreader columns"
-           SourceId="http://schemas.microsoft.com/sharepoint/v3">
-           <DEFAULT>
-            ms-FocusZone
-           </DEFAULT>
+            DisplayName="Selectors"
+            Type="Text"
+            Required="TRUE"
+            Group="Screenreader columns">
     </Field>
-
    <ContentType ID="0x0100F1F641C5B6C24579969B26634C85EC7E" 
            Name="Screenreader Settings" 
            Group="Screenreader Content Types" 
@@ -44,7 +34,6 @@
            <FieldRef ID="{85211834-6556-4720-B036-18FFF0E2ACFD}" />
        </FieldRefs>
    </ContentType> 
-
    <ListInstance 
            CustomSchema="schema.xml"
            FeatureId="00bfea71-de22-43b2-a848-c05709900100"
