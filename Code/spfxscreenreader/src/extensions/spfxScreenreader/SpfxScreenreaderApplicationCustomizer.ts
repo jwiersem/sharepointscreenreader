@@ -45,22 +45,6 @@ export default class SpfxScreenreaderApplicationCustomizer
   public async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, `Initialized ${strings.Title}`);
 
-    await this.getProperties(this.properties).catch((err) => {
-      console.log("Error getting properties from ScreenreaderSettings list. Does it exist?");
-    });
-
-    if (!this.properties.apiUrl || 0 === this.properties.apiUrl.length)
-    {
-      this.properties.apiUrl = "https://prod-32.westeurope.logic.azure.com:443/workflows/737b64d81a9e4dc8b0dd1b938789df2b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PQbLDWnyX2m7GK6wRF5p03dvPacpYYPh87h5jp352dM";
-    }
-
-    let config: IScreenreaderServiceConfiguration = {
-      httpClient: this.context.httpClient,
-      apiUrl: this.properties.apiUrl
-    };
-
-    this.atextToSpeechService = new ScreenreaderService(config);
-
     // Added to handle possible changes on the existence of placeholders.
     this.context.placeholderProvider.changedEvent.add(this, this._renderPlaceHolders);
 
@@ -131,6 +115,22 @@ export default class SpfxScreenreaderApplicationCustomizer
   }
 
   private async _renderPlaceHolders(): Promise<void> {
+
+    await this.getProperties(this.properties).catch((err) => {
+      console.log("Error getting properties from ScreenreaderSettings list. Does it exist?");
+    });
+
+    if (!this.properties.apiUrl || 0 === this.properties.apiUrl.length)
+    {
+      this.properties.apiUrl = "https://prod-32.westeurope.logic.azure.com:443/workflows/737b64d81a9e4dc8b0dd1b938789df2b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PQbLDWnyX2m7GK6wRF5p03dvPacpYYPh87h5jp352dM";
+    }
+
+    let config: IScreenreaderServiceConfiguration = {
+      httpClient: this.context.httpClient,
+      apiUrl: this.properties.apiUrl
+    };
+
+    this.atextToSpeechService = new ScreenreaderService(config);
 
     console.log('HelloWorldApplicationCustomizer._renderPlaceHolders()');
     console.log('Available placeholders: ',

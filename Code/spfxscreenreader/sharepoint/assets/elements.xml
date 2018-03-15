@@ -42,4 +42,10 @@
            TemplateType="100"
            Url="Lists/ScreenreaderSettings">
    </ListInstance>
+   <CustomAction 
+        Title="SpfxScreenreaderApplicationCustomizer"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="e0f91da2-2600-4bbf-af91-3eec161ecd98"
+        ClientSideComponentProperties="{&quot;Top&quot;:&quot;Top area of the page&quot;,&quot;Bottom&quot;:&quot;Bottom area in the page&quot;}">
+    </CustomAction>
 </Elements>
