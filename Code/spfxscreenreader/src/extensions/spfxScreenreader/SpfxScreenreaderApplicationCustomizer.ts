@@ -14,8 +14,6 @@ import * as strings from 'SpfxScreenreaderApplicationCustomizerStrings';
 import styles from './AppCustomizer.module.scss';
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { sp } from "@pnp/sp";
-
 import { ScreenreaderService,IScreenreaderServiceConfiguration } from './Services/ScreenreaderService';
 
 const LOG_SOURCE: string = 'SpfxScreenreaderApplicationCustomizer';
@@ -43,6 +41,9 @@ export default class SpfxScreenreaderApplicationCustomizer
   private propertyNameApiUrl: string = "screenreader-apiUrlProperty";
   private propertynameAutoPlay: string = "screenreader-autoPlayProperty";
 
+  private audio = new Audio();
+  private currentAudioIndex:Number = 0;
+
   @override
   public async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, `Initialized ${strings.Title}`);
@@ -53,9 +54,7 @@ export default class SpfxScreenreaderApplicationCustomizer
     // Call render method for generating the HTML elements.
     this._renderPlaceHolders();
     return super.onInit().then(_ => {
-      sp.setup({
-        spfxContext: this.context
-      });
+      console.log("OnInit ran.");
     });
   }
 
@@ -117,11 +116,6 @@ export default class SpfxScreenreaderApplicationCustomizer
       console.log("Error getting properties from ScreenreaderSettings list. Does it exist?");
     });
 
-    if (!this.properties.apiUrl || 0 === this.properties.apiUrl.length)
-    {
-      this.properties.apiUrl = "https://prod-32.westeurope.logic.azure.com:443/workflows/737b64d81a9e4dc8b0dd1b938789df2b/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PQbLDWnyX2m7GK6wRF5p03dvPacpYYPh87h5jp352dM";
-    }
-
     let config: IScreenreaderServiceConfiguration = {
       httpClient: this.context.httpClient,
       apiUrl: this.properties.apiUrl
@@ -129,7 +123,6 @@ export default class SpfxScreenreaderApplicationCustomizer
 
     this.atextToSpeechService = new ScreenreaderService(config);
 
-    console.log('HelloWorldApplicationCustomizer._renderPlaceHolders()');
     console.log('Available placeholders: ',
     this.context.placeholderProvider.placeholderNames.map(name => PlaceholderName[name]).join(', '));
 
@@ -155,27 +148,16 @@ export default class SpfxScreenreaderApplicationCustomizer
         if (this._topPlaceholder.domElement) {
           this._topPlaceholder.domElement.innerHTML = `
         <div class="${styles.app}">
-          <div id="screenreader-settings-wrapper" class="screenreader-settings-wrapper" style="display:none;">
-            <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">          
-              <input id="input-apiUrl" type="text" value="${this.properties.apiUrl}"></input>
-              <input id="input-autoPlay" type="checkbox" id="autoPlay" name="autoPlay" value="${this.properties.autoPlay}"></input>
-              <label for="autoPlay">Autoplay?</label>
-              <i id="screenreader-save-operation" class="screenreader-settings ms-Icon ms-Icon--Save x-hidden-focus" title="Save" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$2.0"></i>
-            </div>
-          </div>
           <div id="screenreader-audioplayer-wrapper" class="screenreader-audioplayer-wrapper">
             <div class="ms-bgColor-themeDark ms-fontColor-white ${styles.top}">
 
-              <i class="ms-Icon ms-Icon--Rewind x-hidden-focus" title="Rewind" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$0.0"></i>
+              <i id="screenreader-rewind" class="ms-Icon ms-Icon--Rewind x-hidden-focus" title="Rewind" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$0.0"></i>
 
-              <i class="ms-Icon ms-Icon--CircleStopSolid x-hidden-focus" title="CircleStopSolid" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i>
+              <i id="screenreader-stop" class="ms-Icon ms-Icon--CircleStopSolid x-hidden-focus" title="CircleStopSolid" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i>
 
-              <i class="ms-Icon ms-Icon--Play x-hidden-focus" title="Play" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i> 
+              <i id="screenreader-play" class="ms-Icon ms-Icon--Play x-hidden-focus" title="Play" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$1.0"></i> 
                         
               Reading screen!
-
-              <i class="screenreader-settings ms-Icon ms-Icon--EditSolidMirrored12 x-hidden-focus" title="EditSolidMirrored12" aria-hidden="true" data-reactid=".0.0.$=10.0.1.$=1$3.6.1.$11.0"></i>
-            
             </div>
           </div>          
         </div>
@@ -184,35 +166,44 @@ export default class SpfxScreenreaderApplicationCustomizer
            
         let self = this;
 
-        var settingsElements = document.getElementsByClassName('screenreader-settings');
-      
-        for(var i = 0;i < settingsElements.length; i++)
-        {
-          settingsElements[i].addEventListener('click', function()
-          {
-            self.toggle(document.getElementById('screenreader-settings-wrapper'));
-            self.toggle(document.getElementById('screenreader-audioplayer-wrapper'));
-          });
-        }
-
-        var saveElement = document.getElementById('screenreader-save-operation');
-
-        saveElement.addEventListener('click', function(){
-          var apiUrlElement = document.getElementById('input-apiUrl');
-          var autoPlayElement = document.getElementById('input-autoPlay');
-
-          self.properties.apiUrl = (<HTMLInputElement>apiUrlElement).value;
-          self.properties.autoPlay = (<HTMLInputElement>autoPlayElement).checked;
-
-          console.log(self.properties.apiUrl);
-          console.log(self.properties.autoPlay);
+        document.getElementById('screenreader-rewind').addEventListener('click', function(){
+          self.currentAudioIndex = 0;
+          console.log('clicked rewind');
         });
 
-        setTimeout(async function () {
-          console.log("Timeout expired. Running screenreading code.");          
+        document.getElementById('screenreader-stop').addEventListener('click', function(){
+          self.audio.pause();
+          console.log('clicked stop');
+        });
 
-          self.readPage(self);
-        }, 3000);    
+        document.getElementById('screenreader-play').addEventListener('click', function(){
+          console.log('clicked play');
+
+          if (!self.properties.autoPlay)
+          {
+            self.readPage(self);
+          }
+          else
+          {
+            if (self.audio.paused)
+            {
+              self.audio.play();
+            }
+            else
+            {
+              console.log('Auto play is on and audio is playing, cannot play audio twice.');
+            }            
+          }         
+        });
+
+        if (self.properties.autoPlay)
+        {
+          setTimeout(async function () {
+            console.log("Timeout expired. Running screenreading code.");          
+
+            self.readPage(self);
+          }, 3000);  
+        }  
       }
     }
   }
@@ -243,6 +234,7 @@ private toggle = function (elem) {
 
   private async readPage(aSelf)
   {
+    console.log('Start page reading');
     if (aSelf.allText.length == 0)
     {
       aSelf.allText = aSelf.scrapePage();
@@ -250,26 +242,27 @@ private toggle = function (elem) {
 
     if (aSelf.allText.length > 0)
     {
-      var aIndex = 1;
-      let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[0]);
+      let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[aSelf.currentAudioIndex]);
 
       var aObjectUrl: string = URL.createObjectURL(aSpeechResponse);
-      var audio = new Audio();
-      audio.src = aObjectUrl;
-      audio.load();
-      audio.play();
+      
+      aSelf.audio.src = aObjectUrl;
+      aSelf.audio.load();
+      aSelf.audio.play();
 
-      audio.onended = async function()
+      aSelf.currentAudioIndex++;
+
+      aSelf.audio.onended = async function()
       {
-        if (aIndex < aSelf.allText.length)
+        if (aSelf.currentAudioIndex < aSelf.allText.length)
         {
-          let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[aIndex]);
+          let aSpeechResponse: Blob = await aSelf.atextToSpeechService.TextToSpeech(aSelf.allText[aSelf.currentAudioIndex]);
 
           var aObjectUrl: string = URL.createObjectURL(aSpeechResponse);
-          audio.src = aObjectUrl;
-          // audio.load();
-          audio.play();
-          aIndex++;
+          aSelf.audio.src = aObjectUrl;
+          aSelf.audio.play();
+          aSelf.currentAudioIndex++;
+          console.log('Next audio clip number: ' + aSelf.currentAudioIndex);
         }
       };
     }
