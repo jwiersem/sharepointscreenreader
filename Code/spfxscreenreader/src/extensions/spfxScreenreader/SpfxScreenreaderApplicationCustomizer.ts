@@ -78,6 +78,8 @@ export default class SpfxScreenreaderApplicationCustomizer
       }
     }
 
+    console.log("Number of suitable texts to play: " + allTextToRead.length);
+
     return allTextToRead;
   }
 
