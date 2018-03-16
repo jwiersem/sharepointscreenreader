@@ -1,6 +1,8 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
 .app {
     .top {
-        height:30px;
+        height:35px;
         text-align:center;
         line-height:2.5;
         font-weight:bold;
@@ -9,9 +11,22 @@
         justify-content: center;
     }   
 
-    .screenreader-settings 
+    .screenreadercontrols
     {
-        display:none;
+        display: flex;
+        align-items: center;
+        height: 15px;
+        border-radius: 25px;
+        border: 2px solid $ms-color-themeDark;       
+        padding: 5px 20px; 
+
+        h4 {
+            margin-right: 20px;
+        }
+
+        .iconcontainer{
+            margin-right: 5px;
+        }
     }
 
 }
