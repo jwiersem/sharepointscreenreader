@@ -15,7 +15,7 @@ Like I said, this is a hobby/demo project. It is not suited to be used anywhere 
 
 These are the installation instructions:
 1. You need programmatic access to the text-to-speech service I used, which is the Bing Speech API.
-Register for a key here: [link](https://azure.microsoft.com/en-us/try/cognitive-services/?api=speech-api "Register for Bing Speech API")
+Register for a key here: [Register for Bing Speech API](https://azure.microsoft.com/en-us/try/cognitive-services/?api=speech-api "Register for Bing Speech API")
 Save the key somehere.
 2. Use the Flow/Logic App definition to create the 'backend'. If you have a personal O365 account you cant actually easily import the Flow :-( In that case you have the option to read JSON and recreate the Flow yourself, or if you have an Azure account you can create a Logic App from the JSON definition.
 3. Fill in the Bing Speech API key in the apiKey variable in the Flow/LogicApp.
