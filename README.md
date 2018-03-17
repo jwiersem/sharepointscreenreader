@@ -2,10 +2,10 @@
 
 **This is hobby project that will allow you to hear SharePoint speak to you!**
 
-[![Youtube video for SPFx screenreader](https://www.youtube.com/upload_thumbnail?v=rE9CzuWchCg&t=hqdefault&ts=1521307739542)](https://www.youtube.com/watch?v=rE9CzuWchCg)
+[![Youtube video for SPFx screenreader](https://i.ytimg.com/vi/rE9CzuWchCg/hqdefault.jpg)](https://www.youtube.com/watch?v=rE9CzuWchCg)
 
 When installed the code will read the most important text on the page aloud.
-It is a SharePoint Framework application customizer which means that will run on every page in your SharePoint site collection.
+It is a SharePoint Framework application customizer which means that it will run on every page in your SharePoint site collection.
 At the top of the page you will see an audio player, with rewind, stop and play buttons.
 Installing the package will also deploy a list to your site, in which you will need to specify the following settings:
 * API Url 
@@ -14,13 +14,14 @@ Installing the package will also deploy a list to your site, in which you will n
 
 This repository contains the app package that needs to be installed in your SharePoint farm. It also contains the definition of the API the code requires. It is implemented as a Microsoft Flow that is HTTP triggered and returns a HTTP response. The Microsoft Flow in turn uses the Bing Speech API that generates audio from text.
 *The app package and the Flow definition are in the release folder.*
-Like I said, this is a hobby/demo project. It is not suited to be used anywhere near a production environment. The main purpose was to show that besides the, obviously extremely useful scenario of seeing whether people are pissed off at you in their emails with sentiment analysis, there are also other ways to use Cognitive Services for the betterment of mankind.
+Like I said, this is a hobby/demo project. It is not suited to be used anywhere near a production environment. The main purpose was to show that besides the *obviously* extremely useful scenario of seeing whether people are pissed off at you in their emails with sentiment analysis, there are also other ways to use Cognitive Services for the betterment of mankind.
 
 These are the installation instructions:
 1. You need programmatic access to the text-to-speech service I used, which is the Bing Speech API.
 Register for a key here: [Register for Bing Speech API](https://azure.microsoft.com/en-us/try/cognitive-services/?api=speech-api "Register for Bing Speech API")
+There is a free version, or you can use your Azure credits and deploy the API in it.
 Save the key somehere.
-2. Use the Flow/Logic App definition to create the 'backend'. If you have a personal O365 account you cant actually easily import the Flow :-( In that case you have the option to read JSON and recreate the Flow yourself, or if you have an Azure account you can create a Logic App from the JSON definition.
+2. Use the Flow/Logic App definition to create the backend. If you have a personal O365 account you cant actually easily import the Flow :-( In that case you have the option to read the JSON and recreate the Flow yourself, or if you have an Azure account you can create a Logic App from the JSON definition.
 3. Fill in the Bing Speech API key in the apiKey variable in the Flow/LogicApp.
 4. Enable the Flow/Logic App.
 5. Now, edit the Flow again. You will see a URL in the trigger, save that somewhere.
@@ -47,7 +48,7 @@ The good:
 
 The bad:
 * Very quick and dirty solution.
-* It turns out you need an organisation Flow license to import-export Flows. This completely annihilated my plan to make the installation consist of 100% clicking and copy-pasting.
+* It turns out you need an organisation Flow license to import-export Flows. This completely annihilated my plan to make the installation consist 100% of clicking and copy-pasting.
 * Will not actually help improve the current dismal state of mankind in general, or your own life in particular.
 
 
