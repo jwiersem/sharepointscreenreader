@@ -2,6 +2,8 @@
 
 **This is hobby project that will allow you to hear SharePoint speak to you!**
 
+[![Youtube video for SPFx screenreader](https://www.youtube.com/upload_thumbnail?v=rE9CzuWchCg&t=hqdefault&ts=1521307739542)](https://www.youtube.com/watch?v=rE9CzuWchCg)
+
 When installed the code will read the most important text on the page aloud.
 It is a SharePoint Framework application customizer which means that will run on every page in your SharePoint site collection.
 At the top of the page you will see an audio player, with rewind, stop and play buttons.
@@ -9,6 +11,7 @@ Installing the package will also deploy a list to your site, in which you will n
 * API Url 
 * Autoplay (yes/no)
 * The selectors you wish to use for finding the important elements on the page.
+
 This repository contains the app package that needs to be installed in your SharePoint farm. It also contains the definition of the API the code requires. It is implemented as a Microsoft Flow that is HTTP triggered and returns a HTTP response. The Microsoft Flow in turn uses the Bing Speech API that generates audio from text.
 *The app package and the Flow definition are in the release folder.*
 Like I said, this is a hobby/demo project. It is not suited to be used anywhere near a production environment. The main purpose was to show that besides the, obviously extremely useful scenario of seeing whether people are pissed off at you in their emails with sentiment analysis, there are also other ways to use Cognitive Services for the betterment of mankind.
